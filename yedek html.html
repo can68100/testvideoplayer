@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Özel Video Oynatıcı</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #141414;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .player-container {
+            max-width: 800px;
+            width: 100%;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        video {
+            width: 100%;
+            display: block;
+        }
+        .controls-bar {
+            background: #222;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #666;
+        }
+        .btn.active {
+            background: #e50914;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="player-container">
+    <video id="my-video" controls autoplay>
+        <!-- 1. ADIM: Sayfa ilk açıldığında başlayacak varsayılan videonun adını yazın -->
+        <source id="video-source" src="ORJINAL_VIDEONUZUN_ADI.mp4" type="video/mp4">
+        
+        <!-- 2. ADIM: Altyazı dosyanızın adını src kısmına yazın -->
+        <track id="tr-track" src="ALTYAZI_DOSYANIZIN_ADI.vtt" kind="subtitles" srclang="tr" label="Türkçe">
+        Tarayıcınız video etiketini desteklemiyor.
+    </video>
+
+    <div class="controls-bar">
+        <button class="btn" id="btn-dublaj" onclick="changeMode('dublaj')">Türkçe Dublaj</button>
+        <button class="btn" id="btn-altyazi" onclick="changeMode('altyazi')">Türkçe Altyazılı</button>
+        <button class="btn active" id="btn-orjinal" onclick="changeMode('orjinal')">Orijinal (Altyazısız)</button>
+    </div>
+</div>
+
+<script>
+    const video = document.getElementById('my-video');
+    const videoSource = document.getElementById('video-source');
+    const track = document.getElementById('tr-track');
+    
+    // 3. ADIM: Butonlara basıldığında açılacak video dosyalarının adlarını buraya girin
+    const videoSources = {
+        orjinal: "ORJINAL_VIDEONUZUN_ADI.mp4", 
+        altyazi: "ORJINAL_VIDEONUZUN_ADI.mp4", // Altyazı modu genellikle orijinal videoyu kullanır
+        dublaj: "DUBLAJLI_VIDEONUZUN_ADI.mp4"
+    };
+
+    function changeMode(mode) {
+        const currentTime = video.currentTime;
+        const isPaused = video.paused;
+
+        document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${mode}`).classList.add('active');
+
+        videoSource.src = videoSources[mode];
+        video.load();
+
+        video.onloadedmetadata = function() {
+            video.currentTime = currentTime;
+            if (!isPaused) {
+                video.play();
+            }
+        };
+
+        // Altyazı görünürlüğünü ayarla
+        if (mode === 'altyazi') {
+            track.mode = 'showing';
+        } else {
+            track.mode = 'hidden';
+        }
+    }
+
+    // Sayfa ilk yüklendiğinde (orijinal modda) altyazıyı gizle
+    video.addEventListener('loadedmetadata', function() {
+        track.mode = 'hidden';
+    }, { once: true });
+</script>
+
+</body>
+</html>
