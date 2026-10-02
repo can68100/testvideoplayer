@@ -3,118 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Özel Video Oynatıcı</title>
+    
+    <!-- SEO Alanları (Dinamik Değişecek) -->
+    <title id="dynamicTitle">En İyi HD Filmleri İzle - Mor Film Scripti</title>
+    <meta name="description" id="dynamicDesc" content="En popüler aksiyon, suç, bilim kurgu filmlerini kesintisiz, Türkçe dublaj ve altyazı seçenekleriyle full HD 1080p kalitesinde izleyin.">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Dinamik JSON-LD Sistemi (Google ve Arama Motorları İçin Yapılandırılmış Veri) -->
+    <script type="application/ld+json" id="jsonLdSchema">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Mor Film Scripti",
+      "url": "https://www.ornekfilmsiteniz.com",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.ornekfilmsiteniz.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #141414;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
+        :root {
+            --bg-color: #0c071e;
+            --card-bg: #170f37;
+            --primary-purple: #8b5cf6;
+            --light-purple: #a78bfa;
+            --dark-purple: #5b21b6;
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --delete-red: #ef4444;
+            --success-green: #10b981;
         }
-        .player-container {
-            max-width: 800px;
-            width: 100%;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; padding-bottom: 60px; }
+        
+        header { 
+            background: linear-gradient(135deg, var(--dark-purple), var(--bg-color)); 
+            padding: 25px 20px; 
+            text-align: center; 
+            border-bottom: 3px solid var(--primary-purple); 
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+            margin-bottom: 30px;
         }
-        video {
-            width: 100%;
-            display: block;
+        
+        .logo h1 { 
+            color: var(--text-color); 
+            font-size: 2.3rem; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
         }
-        .controls-bar {
-            background: #222;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
+        .logo span { color: var(--primary-purple); text-shadow: 0 0 10px var(--primary-purple); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* --- FİLM EKLEME PANELİ --- */
+        .admin-box {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px dashed var(--primary-purple);
+            margin-bottom: 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
         }
-        .btn {
-            background: #444;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
-        .btn:hover {
-            background: #666;
-        }
-        .btn.active {
-            background: #e50914;
-            font-weight: bold;
-        }
+
+        .admin-box h3 { margin-bottom: 20px; color: var(--light-purple); font-size: 1.3rem; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
+        .form-control { padding: 12px 15px; background-color: var(--bg-color); border: 1px solid var(--dark-purple); border-radius: 8px; color: white; outline: none; transition: all 0.3s ease; font-size: 0.9rem; }
+        .form-control:focus { border-color: var(--primary-purple); box-shadow: 0 0 8px rgba(139, 92, 246, 0.4); }
+        .btn-add { background-color: var(--success-green); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; font-size: 1rem; }
+        .btn-add:hover { background-color: #059669; }
+
+        /* --- SİLME ALANI --- */
+        .card-actions { padding: 0 20px 20px 20px; }
+        .btn-delete { background-color: rgba(239, 68, 68, 0.1); color: var(--delete-red); border: 1px solid rgba(239, 68, 68, 0.4); padding: 8px; border-radius: 6px; width: 100%; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; }
+        .btn-delete:hover { background-color: var(--delete-red); color: white; }
+
+        /* --- KONTROLLER --- */
+        .controls-box { background-color: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid rgba(139, 92, 246, 0.2); display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: space-between; margin-bottom: 40px; }
+        .search-wrapper { flex: 1; min-width: 300px; }
+        .search-input { width: 100%; padding: 15px 25px; border-radius: 50px; border: 2px solid var(--dark-purple); background-color: var(--bg-color); color: #fff; font-size: 1rem; outline: none; transition: all 0.3s ease; }
+        .search-input:focus { border-color: var(--primary-purple); box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); }
+        .btn-suggest { background: linear-gradient(45deg, var(--primary-purple), var(--dark-purple)); color: white; border: none; padding: 15px 35px; border-radius: 50px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
+        .btn-suggest:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5); }
+
+        /* --- FİLM VİTRİNİ --- */
+        .section-title { font-size: 1.6rem; margin-bottom: 25px; border-left: 5px solid var(--primary-purple); padding-left: 15px; }
+        .movies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 30px; }
+        .movie-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
+        .movie-card:hover { transform: translateY(-5px); border-color: var(--primary-purple); box-shadow: 0 10px 25px rgba(139, 92, 246, 0.25); }
+        .clickable-area { cursor: pointer; }
+        .poster-wrapper { position: relative; height: 360px; background-color: #111; }
+        .poster-img { width: 100%; height: 100%; object-fit: cover; }
+        .rating-badge { position: absolute; top: 15px; right: 15px; background-color: rgba(12, 7, 30, 0.85); border: 1px solid var(--primary-purple); color: #fbbf24; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; }
+        .movie-info { padding: 20px; }
+        .movie-category { color: var(--light-purple); font-size: 0.8rem; text-transform: uppercase; font-weight: 600; margin-bottom: 5px; }
+        .movie-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .movie-desc { color: var(--text-muted); font-size: 0.85rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* --- FİLM DETAY MODALI --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(12, 7, 30, 0.95); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background-color: var(--card-bg); max-width: 800px; width: 100%; border-radius: 16px; border: 2px solid var(--primary-purple); overflow: hidden; position: relative; animation: zoomIn 0.25s ease; }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 2rem; color: #fff; cursor: pointer; z-index: 10; }
+        .close-modal:hover { color: var(--primary-purple); }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; background-color: #000; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .modal-body { padding: 25px; }
+        #modalMovieTitle { font-size: 1.6rem; color: #fff; margin-bottom: 10px; }
+        #modalMovieSeoDesc { background-color: rgba(139, 92, 246, 0.1); border-left: 4px solid var(--primary-purple); padding: 12px 15px; margin-top: 15px; font-style: italic; font-size: 0.9rem; color: var(--light-purple); }
+        .toast { position: fixed; bottom: 20px; right: 20px; background-color: var(--primary-purple); color: white; padding: 12px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); display: none; z-index: 2000; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-<div class="player-container">
-    <video id="my-video" controls autoplay>
-        <!-- 1. ADIM: Sayfa ilk açıldığında başlayacak varsayılan videonun adını yazın -->
-        <source id="video-source" src="ORJINAL_VIDEONUZUN_ADI.mp4" type="video/mp4">
+    <header>
+        <div class="logo">
+            <h1>Purple<span>Cinema</span></h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Film Ekleme Formu -->
+        <div class="admin-box">
+            <h3>🎬 Film Ekleme Paneli</h3>
+            <form id="movieForm" onsubmit="addMovie(event)">
+                <div class="form-grid">
+                    <div class="form-group"><label>Film Adı</label><input type="text" id="title" class="form-control" placeholder="The Dark Knight (Kara Şövalye)" required></div>
+                    <div class="form-group"><label>Kategori</label><input type="text" id="category" class="form-control" placeholder="Aksiyon, Suç" required></div>
+                    <div class="form-group"><label>IMDb Puanı</label><input type="text" id="rating" class="form-control" placeholder="9.0" required></div>
+                    <div class="form-group"><label>Afiş Resim URL (Poster)</label><input type="url" id="poster" class="form-control" placeholder="https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=500" required></div>
+                    <div class="form-group"><label>Fragman/Film Embed URL</label><input type="url" id="iframeUrl" class="form-control" placeholder="https://www.youtube.com/embed/EXeTwQWrcwY"></div>
+                </div>
+                <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                    <div class="form-group"><label>Kısa Özet (Sitede Görünecek Alan)</label><input type="text" id="description" class="form-control" placeholder="Batman, Gotham şehrini kaosa sürüklemeye çalışan..." required></div>
+                    <div class="form-group"><label>SEO Açıklaması (Arama Motorları İçin 150-160 Karakter)</label><input type="text" id="seoDescription" class="form-control" placeholder="The Dark Knight (Kara Şövalye) filmini kesintisiz full HD izlemek için hemen tıklayın!" required></div>
+                </div>
+                <button type="submit" class="btn-add">➕ Filmi Listeye Güvenle Ekle</button>
+            </form>
+        </div>
         
-        <!-- 2. ADIM: Altyazı dosyanızın adını src kısmına yazın -->
-        <track id="tr-track" src="forbiden-kingdom.vtt" kind="subtitles" srclang="tr" label="Türkçe">
-        Tarayıcınız video etiketini desteklemiyor.
-    </video>
+        <!-- Arama ve Öneri Butonları -->
+        <div class="controls-box">
+            <div class="search-wrapper"><input type="text" id="searchInput" class="search-input" placeholder="Film adı veya kategori yazarak canlı arayın..."></div>
+            <button class="btn-suggest" onclick="suggestRandomMovie()">🎲 Rastgele Film Öner</button>
+        </div>
 
-    <div class="controls-bar">
-        <button class="btn" id="btn-dublaj" onclick="changeMode('dublaj')">Türkçe Dublaj</button>
-        <button class="btn" id="btn-altyazi" onclick="changeMode('altyazi')">Türkçe Altyazılı</button>
-        <button class="btn active" id="btn-orjinal" onclick="changeMode('orjinal')">Orijinal (Altyazısız)</button>
+        <h2 class="section-title" id="listTitle">Tüm Filmler</h2>
+        <div class="movies-grid" id="moviesGrid"></div>
     </div>
-</div>
 
-<script>
-    const video = document.getElementById('my-video');
-    const videoSource = document.getElementById('video-source');
-    const track = document.getElementById('tr-track');
-    
-    // 3. ADIM: Butonlara basıldığında açılacak video dosyalarının adlarını buraya girin
-    const videoSources = {
-        orjinal: "", 
-        altyazi: "ORJINAL_VIDEONUZUN_ADI.mp4", // Altyazı modu genellikle orijinal videoyu kullanır
-        dublaj: "DUBLAJLI_VIDEONUZUN_ADI.mp4"
-    };
+    <!-- Detay Modalı -->
+    <div class="modal" id="movieModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div class="video-container"><iframe id="modalIframe" src="" allowfullscreen></iframe></div>
+            <div class="modal-body">
+                <span id="modalMovieCategory" class="movie-category"></span>
+                <h3 id="modalMovieTitle"></h3>
+                <p id="modalMovieDesc"></p>
+                <div id="modalMovieSeoDesc"></div>
+            </div>
+        </div>
+    </div>
 
-    function changeMode(mode) {
-        const currentTime = video.currentTime;
-        const isPaused = video.paused;
+    <div class="toast" id="infoToast">İşlem Başarılı!</div>
 
-        document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`btn-${mode}`).classList.add('active');
-
-        videoSource.src = videoSources[mode];
-        video.load();
-
-        video.onloadedmetadata = function() {
-            video.currentTime = currentTime;
-            if (!isPaused) {
-                video.play();
+    <script>
+        // Sizin paylaştığınız JSON yapısıyla %100 birebir başlangıç verisi
+        const defaultDatabase = [
+            {
+                id: 1,
+                title: "The Dark Knight (Kara Şövalye)",
+                category: "Aksiyon, Suç",
+                rating: "9.0",
+                poster: "https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=500",
+                iframeUrl: "https://www.youtube.com/embed/EXeTwQWrcwY",
+                description: "Batman, Gotham şehrini kaosa sürüklemeye çalışan gizemli ve sadist suçlu Joker ile karşı karşıya gelir.",
+                seoDescription: "The Dark Knight (Kara Şövalye) filmini kesintisiz, Türkçe dublaj ve altyazı seçenekleriyle full HD 1080p kalitesinde izlemek için hemen tıklayın!"
             }
-        };
+        ];
 
-        // Altyazı görünürlüğünü ayarla
-        if (mode === 'altyazi') {
-            track.mode = 'showing';
-        } else {
-            track.mode = 'hidden';
+        // Google Sites alt pencerelerinde (iframe) hatasız çalışması için LocalStorage kontrolü
+        let movieDatabase = [];
+        try {
+            movieDatabase = JSON.parse(localStorage.getItem('purpleMovieDatabase'));
+        } catch (e) {
+            console.log("LocalStorage erişimi kısıtlı, geçici hafıza aktif.");
         }
-    }
 
-    // Sayfa ilk yüklendiğinde (orijinal modda) altyazıyı gizle
-    video.addEventListener('loadedmetadata', function() {
-        track.mode = 'hidden';
-    }, { once: true });
-</script>
+        if (!movieDatabase || movieDatabase.length === 0) {
+            movieDatabase = defaultDatabase;
+            try { localStorage.setItem('purpleMovieDatabase', JSON.stringify(movieDatabase)); } catch(e){}
+        }
 
+        const moviesGrid = document.getElementById('moviesGrid');
+        const searchInput = document.getElementById('searchInput');
+
+        document.addEventListener("DOMContentLoaded", () => { renderMovies(movieDatabase); });
+
+        // Filmleri ekrana basma fonksiyonu
+        function renderMovies(movies) {
+            moviesGrid.innerHTML = '';
+            if (movies.length === 0) {
+                moviesGrid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding: 40px 0;">Aradığınız kriterlere uygun film bulunamadı.</p>`;
+                return;
+            }
+            movies.forEach(movie => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.innerHTML = `
+                    <div class="clickable-area" onclick="openMovie(${movie.id})">
+                        <div class="poster-wrapper">
+                            <span class="rating-badge">★ ${movie.rating}</span>
+                            <img src="${movie.poster}" alt="${movie.title} izle" class="poster-img" loading="lazy">
+                        </div>
+                        <div class="movie-info">
+                            <div class="movie-category">${movie.category}</div>
+                            <h3 class="movie-title">${movie.title}</h3>
+                            <p class="movie-desc">${movie.description}</p>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-delete" onclick="deleteMovie(${movie.id})">🗑️ Filmi Scriptten Sil</button>
+                    </div>
+                `;
+                moviesGrid.appendChild(card);
+            });
+        }
+
+        // Film Ekleme Sistemi
+        function addMovie(event) {
+            event.preventDefault();
+            const newMovie = {
+                id: movieDatabase.length > 0 ? Math.max(...movieDatabase.map(m => m.id)) + 1 : 1,
+                title: document.getElementById('title').value,
+                category: document.getElementById('category').value,
+                rating: document.getElementById('rating').value,
+                poster: document.getElementById('poster').value,
+                iframeUrl: document.getElementById('iframeUrl').value || "https://www.youtube.com/embed/EXeTwQWrcwY",
+                description: document.getElementById('description').value,
+                seoDescription: document.getElementById('seoDescription').value
+            };
+            movieDatabase.push(newMovie);
+            try { localStorage.setItem('purpleMovieDatabase', JSON.stringify(movieDatabase)); } catch(e){}
+            renderMovies(movieDatabase);
+            document.getElementById('movieForm').reset();
+            showToast("🚀 Yeni film başarıyla eklendi ve veritabanına kaydedildi!");
+        }
+
+        // Film Silme Sistemi
+        function deleteMovie(id) {
+            if(confirm("Bu filmi silmek istediğinize emin misiniz?")) {
+                movieDatabase = movieDatabase.filter(m => m.id !== id);
+                try { localStorage.setItem('purpleMovieDatabase', JSON.stringify(movieDatabase)); } catch(e){}
+                renderMovies(movieDatabase);
+                showToast("🗑️ Film kaldırıldı.");
+            }
+        }
+
+        // Canlı Arama Sistemi
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            const filteredMovies = movieDatabase.filter(movie => movie.title.toLowerCase().includes(searchTerm) || movie.category.toLowerCase().includes(searchTerm));
+            renderMovies(filteredMovies);
+            document.getElementById('listTitle').innerText = searchTerm ? `"${e.target.value}" Arama Sonuçları` : "Tüm Filmler";
+            if(searchTerm.length > 2) { updateSeoMeta(`${e.target.value} Filmleri`, `En popüler ${e.target.value} filmleri izle.`); }
+        });
+
+        // Film Önerme Sistemi
+        function suggestRandomMovie() {
+            if(movieDatabase.length === 0) return;
+            const randomIndex = Math.floor(Math.random() * movieDatabase.length);
+            openMovie(movieDatabase[randomIndex].id);
+        }
+
+        // Film Detay Penceresini Açma ve Dinamik SEO / JSON-LD Enjeksiyonu
+        function openMovie(id) {
+            const movie = movieDatabase.find(m => m.id === id);
+            if(!movie) return;
+            document.getElementById('modalIframe').src = movie.iframeUrl;
+            document.getElementById('modalMovieCategory').innerText = movie.category;
+            document.getElementById('modalMovieTitle').innerText = movie.title;
+            document.getElementById('modalMovieDesc').innerText = movie.description;
+            document.getElementById('modalMovieSeoDesc').innerText = movie.seoDescription;
+            document.getElementById('movieModal').style.display = 'flex';
+            updateSeoMeta(`${movie.title} Full HD İzle`, movie.seoDescription);
+            
+            const jsonLdData = {
+                "@context": "https://schema.org",
+                "@type": "Movie",
+                "name": movie.title,
+                "description": movie.description,
+                "image": movie.poster,
+                "genre": movie.category,
+                "aggregateRating": { "@type": "AggregateRating", "ratingValue": movie.rating, "bestRating": "10", "worstRating": "1", "ratingCount": "100" }
+            };
+            document.getElementById('jsonLdSchema').text = JSON.stringify(jsonLdData);
+        }
+
+        function updateSeoMeta(title, desc) {
+            document.getElementById('dynamicTitle').innerText = title;
+            document.getElementById('dynamicDesc').setAttribute('content', desc);
+        }
+
+        function closeModal() {
+            document.getElementById('movieModal').style.display = 'none';
+            document.getElementById('modalIframe').src = '';
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('infoToast');
+            toast.innerText = message;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+    </script>
 </body>
 </html>
